@@ -1,35 +1,3 @@
-# Nhà sách Sông Hương
-
-Bài tập tổng hợp Chương 5–6 môn Phần mềm mã nguồn mở của thầy Nguyễn Dũng. Đề và hình mẫu nằm trong [docs/baitap.pdf](docs/baitap.pdf).
-
-Dự án dùng Python, Flask, Jinja2, Bootstrap, Flask-WTF, Flask-SQLAlchemy, Flask-Migrate và SQLite. CSS Bootstrap và sáu ảnh bìa minh hoạ được phục vụ từ thư mục `static/`, nên giao diện chạy được khi máy mất kết nối mạng.
-
-## Chạy trên Windows PowerShell
-
-Cài Python 3.10 trở lên. Mở PowerShell tại thư mục có `app.py` và chạy lần lượt. Có thể dùng trực tiếp Python trong môi trường ảo mà không cần kích hoạt môi trường.
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app db upgrade
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app seed
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app run
-```
-
-Mở [trang bán hàng](http://127.0.0.1:5000/books) hoặc [trang quản trị](http://127.0.0.1:5000/admin). Dùng Ctrl+C để dừng máy chủ. Dự án phục vụ bài tập trên máy cá nhân. **Không công khai `/admin` khi chưa có xác thực và phân quyền.**
-
-## Migration và dữ liệu mẫu
-
-- Migration ban đầu có trong `migrations/`. `db upgrade` áp dụng các migration còn thiếu vào `instance/bookstore.sqlite`.
-- Sau khi sửa mô hình, chạy hai lệnh bên dưới. Kiểm tra nội dung migration được tạo trước khi chạy lệnh thứ hai.
-- `seed` chỉ thêm các danh mục và đầu sách mẫu còn thiếu theo tên. Có sáu đầu sách gồm *Cơ sở dữ liệu* hết hàng và *Clean Code* còn 5 cuốn. Danh mục *Thiết kế* chưa có sách.
-- Ảnh tải lên được lưu trong `instance/covers/`. Ứng dụng tự tạo khoá ngẫu nhiên trong `instance/secret.key` hoặc dùng biến môi trường `SECRET_KEY` nếu có. Git bỏ qua thư mục `instance/` và `.venv/`.
-
-```powershell
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app db migrate -m "Mo ta thay doi"
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app db upgrade
-```
-
 ## Các màn hình
 
 | Địa chỉ | Chức năng |
