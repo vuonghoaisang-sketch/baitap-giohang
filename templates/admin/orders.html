@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+{% from 'macros.html' import pagination, status_badge with context %}
+{% block title %}Đơn hàng · Quản trị{% endblock %}
+{% block admin_content %}
+<h1 class="h3 mb-3">Đơn hàng</h1>
+<nav class="nav nav-tabs mb-3" aria-label="Trạng thái đơn">
+  {% for status in [''] + (statuses|list) %}
+    <a class="nav-link {{ 'active' if status == filters.status }}" {% if status == filters.status %}aria-current="page"{% endif %}
+       href="{{ url_for('admin.orders', status=status, q=filters.q) }}">{{ status or 'Tất cả' }} ({{ counts.get(status, 0) if status else counts.values()|sum }})</a>
+  {% endfor %}
+</nav>
+<form method="get" class="d-flex gap-2 mb-3">
+  <input type="hidden" name="status" value="{{ filters.status }}">
+  <input class="form-control" name="q" placeholder="Mã đơn, tên khách hàng, số điện thoại…" aria-label="Tìm đơn hàng" value="{{ filters.q }}">
+  <button class="btn btn-primary">Tìm</button>
+</form>
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+  <thead><tr><th>Mã</th><th>Ngày đặt</th><th>Khách hàng</th><th>Điện thoại</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+  <tbody>
+  {% for order in page.items %}
+    <tr class="position-relative"><td><a class="stretched-link fw-semibold" href="{{ url_for('admin.order_detail', order_id=order.id) }}">#{{ order.id }}</a></td>
+      <td class="text-nowrap">{{ order.created_at|local_time }}</td><td>{{ order.name }}</td><td>{{ order.phone }}</td>
+      <td class="text-nowrap">{{ order.total|vnd }}</td><td>{{ status_badge(order.status) }}</td></tr>
+  {% else %}<tr><td colspan="6">Không tìm thấy đơn hàng.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+<div class="d-flex justify-content-between border-top pt-2 mb-3"><span>{{ page.total }} đơn · Tổng giá trị</span><strong class="price">{{ total|vnd }}</strong></div>
+{{ pagination(page, 'admin.orders', filters) }}
+{% endblock %}

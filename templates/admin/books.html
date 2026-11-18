@@ -1,0 +1,35 @@
+{% extends 'admin/base.html' %}
+{% from 'macros.html' import csrf, cover, book_filters, pagination with context %}
+{% block title %}Sách · Quản trị{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h1 class="h3 mb-0">Sách ({{ page.total }})</h1>
+  <a class="btn btn-primary" href="{{ url_for('admin.book_form') }}">+ Thêm sách</a>
+</div>
+{{ book_filters(filters, categories) }}
+<div class="table-responsive">
+<table class="table align-middle">
+  <thead><tr><th>Tên sách / Tác giả</th><th>Danh mục</th><th>Giá</th><th>Tồn</th><th>Thao tác</th></tr></thead>
+  <tbody>
+  {% for book in page.items %}
+    <tr>
+      <td><div class="d-flex gap-2 align-items-center">{{ cover(book, 'thumb') }}
+        <div><strong>{{ book.name }}</strong><div class="small text-secondary">{{ book.author }}</div></div>
+      </div></td>
+      <td>{{ book.category.name }}</td><td class="text-nowrap">{{ book.price|vnd }}</td>
+      <td class="{{ 'text-danger fw-bold' if not book.stock }}">{{ book.stock }}</td>
+      <td class="text-nowrap">
+        <a class="btn btn-sm btn-link px-1" href="{{ url_for('admin.book_form', book_id=book.id) }}">Sửa</a>
+        <form class="d-inline" method="post" action="{{ url_for('admin.delete_book', book_id=book.id) }}" data-confirm="Xoá sách này?">
+          {{ csrf() }}
+          <button class="btn btn-sm btn-link text-danger px-1" {% if book.id in used %}disabled title="Sách đã có trong đơn hàng"{% endif %}>Xoá</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="5">Không tìm thấy sách phù hợp.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% if page.total %}<p class="small text-secondary">Hiển thị {{ page.first }}–{{ page.last }} / {{ page.total }} đầu sách</p>{% endif %}
+{{ pagination(page, 'admin.books', filters) }}
+{% endblock %}

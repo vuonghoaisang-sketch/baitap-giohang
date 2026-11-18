@@ -1,0 +1,38 @@
+{% extends 'admin/base.html' %}
+{% from 'macros.html' import status_badge with context %}
+{% block title %}Tổng quan · Quản trị{% endblock %}
+{% block admin_content %}
+<h1 class="h3 mb-3">Tổng quan</h1>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+  {% for label, value, color in [('Đầu sách', book_count, ''), ('Đơn chờ xác nhận', pending_count, 'price'), ('Doanh thu tháng ' ~ month, revenue|vnd, 'text-success'), ('Sắp hết hàng (≤5)', low_count, 'text-danger')] %}
+    <div class="col"><div class="panel h-100 p-3"><div class="text-secondary small mb-1">{{ label }}</div><strong class="fs-5 {{ color }}">{{ value }}</strong></div></div>
+  {% endfor %}
+</div>
+<div class="row g-3 align-items-start">
+  <section class="col-xl-8">
+    <h2 class="h5">Đơn hàng mới nhất</h2>
+    <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Mã</th><th>Khách hàng</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+      <tbody>
+      {% for order in recent %}
+        <tr><td><a href="{{ url_for('admin.order_detail', order_id=order.id) }}">#{{ order.id }}</a></td><td>{{ order.name }}</td><td class="text-nowrap">{{ order.total|vnd }}</td><td>{{ status_badge(order.status) }}</td></tr>
+      {% else %}<tr><td colspan="4" class="text-secondary">Chưa có đơn hàng.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <a href="{{ url_for('admin.orders') }}">Xem tất cả đơn hàng →</a>
+  </section>
+  <section class="col-xl-4">
+    <div class="panel p-3">
+      <h2 class="h5">Sắp hết hàng (≤5)</h2>
+      <ul class="list-unstyled">
+      {% for book in low_books %}
+        <li class="d-flex justify-content-between gap-2 py-1"><a href="{{ url_for('admin.book_form', book_id=book.id) }}">{{ book.name }}</a><strong class="{{ 'text-danger' if not book.stock else 'price' }}">{{ book.stock }}</strong></li>
+      {% else %}<li>Kho đủ hàng.</li>{% endfor %}
+      </ul>
+      <a href="{{ url_for('admin.book_form') }}">Thêm sách →</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'admin/base.html' %}
+{% from 'macros.html' import csrf, status_badge, customer, order_items with context %}
+{% block title %}Đơn hàng #{{ order.id }} · Quản trị{% endblock %}
+{% block admin_content %}
+<nav class="small mb-2" aria-label="Đường dẫn"><a href="{{ url_for('admin.orders') }}">Đơn hàng</a> / Chi tiết đơn</nav>
+<h1 class="h3 mb-1">Đơn hàng #{{ order.id }}</h1>
+<p class="text-secondary">{{ order.created_at|local_time }}</p>
+<div class="row g-3 align-items-start">
+  <div class="col-xl-8">
+    <section class="panel p-3 mb-3"><h2 class="h5">Khách hàng</h2>{{ customer(order) }}</section>
+    {{ order_items(order) }}
+    <p class="small text-secondary">Đơn giá được lưu tại thời điểm đặt hàng.</p>
+  </div>
+  <aside class="col-xl-4">
+    <section class="panel p-3 mb-3">
+      <h2 class="h5">Trạng thái</h2>
+      {{ status_badge(order.status) }}
+      {% if transitions %}
+        <form method="post" class="mt-3" action="{{ url_for('admin.change_status', order_id=order.id) }}">
+          {{ csrf() }}
+          <label class="form-label" for="status">Chuyển sang</label>
+          <select class="form-select mb-2" id="status" name="status"><option>{{ transitions[0] }}</option></select>
+          <button class="btn btn-primary w-100">Cập nhật</button>
+        </form>
+        <form method="post" class="mt-2" action="{{ url_for('admin.change_status', order_id=order.id) }}" data-confirm="Huỷ đơn và hoàn lại tồn kho?">
+          {{ csrf() }}<button class="btn btn-outline-danger w-100" name="status" value="{{ transitions[1] }}">Huỷ đơn</button>
+        </form>
+      {% endif %}
+    </section>
+    <section class="panel p-3">
+      <h2 class="h5">Lịch sử</h2>
+      <ul class="mb-0 ps-3">
+      {% for entry in order.history %}
+        <li class="mb-2">{{ entry.status }}<br><time class="small text-secondary">{{ entry.changed_at|local_time }}</time></li>
+      {% endfor %}
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import csrf, cover, book_filters with context %}
+{% block title %}Sách · Nhà sách Sông Hương{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Danh sách sách</h1>
+{{ book_filters(filters, categories) }}
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+  {% for book in books %}
+  <div class="col">
+    <article class="card h-100">
+      <a href="{{ url_for('shop.book_detail', book_id=book.id) }}" class="cover-stage">{{ cover(book, 'catalog-cover') }}</a>
+      <div class="card-body d-flex flex-column">
+        <h2 class="h5 mb-1"><a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover" href="{{ url_for('shop.book_detail', book_id=book.id) }}">{{ book.name }}</a></h2>
+        <p class="text-secondary small mb-2">{{ book.author }}</p>
+        <div class="d-flex justify-content-between gap-2 mb-3 mt-auto">
+          <strong class="price">{{ book.price|vnd }}</strong>
+          <span class="{{ 'text-secondary' if book.stock else 'text-danger' }}">{{ 'Còn ' ~ book.stock ~ ' cuốn' if book.stock else 'Hết hàng' }}</span>
+        </div>
+        <form method="post" action="{{ url_for('shop.add_book', book_id=book.id) }}">
+          {{ csrf() }}
+          <input type="hidden" name="q" value="{{ filters.q }}">
+          <input type="hidden" name="category" value="{{ filters.category or '' }}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="btn btn-primary w-100" {% if not book.stock %}disabled{% endif %}>{{ '+ Thêm vào giỏ' if book.stock else 'Hết hàng' }}</button>
+        </form>
+      </div>
+    </article>
+  </div>
+  {% else %}
+    <div class="col w-100"><p class="alert alert-light border">Không tìm thấy sách phù hợp.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

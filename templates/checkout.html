@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import field with context %}
+{% block title %}Thông tin khách hàng · Nhà sách Sông Hương{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Thông tin khách hàng</h1>
+<div class="row g-4 align-items-start">
+  <div class="col-lg-7">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+      {{ field(form.name, autocomplete='name') }}
+      <div class="row">
+        <div class="col-sm-6">{{ field(form.phone, type='tel', inputmode='numeric', autocomplete='tel') }}</div>
+        <div class="col-sm-6">{{ field(form.email, type='email', autocomplete='email') }}</div>
+      </div>
+      {{ field(form.address, rows=2, autocomplete='street-address') }}
+      {{ field(form.note, rows=2) }}
+      <fieldset class="mb-3">
+        <legend class="fs-6">Thanh toán</legend>
+        {% for option in form.payment %}
+          <div class="form-check form-check-inline">{{ option(class_='form-check-input') }} {{ option.label(class_='form-check-label') }}</div>
+        {% endfor %}
+        {% for error in form.payment.errors %}<p class="text-danger small">{{ error }}</p>{% endfor %}
+      </fieldset>
+      <button class="btn btn-primary">Xác nhận đặt hàng</button>
+      <a class="btn btn-link" href="{{ url_for('shop.show_cart') }}">← Quay lại giỏ hàng</a>
+    </form>
+  </div>
+  <aside class="col-lg-5">
+    <div class="panel p-3">
+      <h2 class="h5">Đơn hàng của bạn</h2>
+      {% for book, quantity, key in lines %}
+        <div class="d-flex justify-content-between gap-2 mb-2"><span>{{ book.name }} × {{ quantity }}</span><span class="text-nowrap">{{ (book.price * quantity)|vnd }}</span></div>
+      {% endfor %}
+      <hr>
+      <div class="d-flex justify-content-between"><span>Tạm tính</span><span>{{ subtotal|vnd }}</span></div>
+      <div class="d-flex justify-content-between"><span>Phí giao hàng</span><span>{{ fee|vnd if fee else 'Miễn phí' }}</span></div>
+      <small class="text-secondary">Miễn phí khi tạm tính từ 200.000 đ</small>
+      <hr>
+      <div class="d-flex justify-content-between gap-2"><strong>Tổng thanh toán</strong><strong class="price">{{ (subtotal + fee)|vnd }}</strong></div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

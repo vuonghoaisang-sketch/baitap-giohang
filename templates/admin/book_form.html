@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+{% from 'macros.html' import cover, field with context %}
+{% block title %}{{ 'Sửa sách' if book else 'Thêm sách' }} · Quản trị{% endblock %}
+{% block admin_content %}
+<nav class="small mb-2" aria-label="Đường dẫn"><a href="{{ url_for('admin.books') }}">Sách</a> / {{ 'Sửa' if book else 'Thêm' }}</nav>
+<h1 class="h3 mb-3">{{ 'Sửa sách: ' ~ book.name if book else 'Thêm sách' }}</h1>
+<form method="post" enctype="multipart/form-data" novalidate>
+  {{ form.hidden_tag() }}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {{ field(form.name) }}
+      {{ field(form.author) }}
+      {{ field(form.publisher) }}
+      <div class="row">
+        <div class="col-sm-6">{{ field(form.category_id, 'form-select') }}</div>
+        <div class="col-sm-6">{{ field(form.year) }}</div>
+        <div class="col-sm-6">{{ field(form.price, min=1000) }}</div>
+        <div class="col-sm-6">{{ field(form.stock, min=0) }}</div>
+      </div>
+      {{ field(form.description, rows=3) }}
+    </div>
+    <aside class="col-lg-4">
+      {% if book %}<div class="cover-stage rounded mb-3">{{ cover(book, 'detail-cover') }}</div>{% endif %}
+      {{ field(form.image, accept='.jpg,.jpeg,.png,.webp') }}
+      <p class="small text-secondary">JPG, PNG, WEBP · Tối đa 2 MB{% if book %} · Để trống để giữ ảnh cũ{% endif %}</p>
+    </aside>
+  </div>
+  <button class="btn btn-primary px-4">Lưu</button>
+  <a class="btn btn-outline-primary px-4 ms-2" href="{{ url_for('admin.books') }}">Huỷ</a>
+</form>
+{% endblock %}

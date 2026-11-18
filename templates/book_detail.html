@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import csrf, cover with context %}
+{% block title %}{{ book.name }} · Nhà sách Sông Hương{% endblock %}
+{% block content %}
+<nav class="small mb-3" aria-label="Đường dẫn"><a href="{{ url_for('shop.books') }}">Sách</a> /
+  <a href="{{ url_for('shop.books', category=book.category_id) }}">{{ book.category.name }}</a> / {{ book.name }}</nav>
+<div class="row g-4">
+  <div class="col-sm-5"><div class="cover-stage detail-stage rounded">{{ cover(book, 'detail-cover') }}</div></div>
+  <div class="col-sm-7">
+    <h1 class="h3">{{ book.name }}</h1>
+    <p class="text-secondary">{{ book.author }}{% if book.publisher %} · {{ book.publisher }}{% endif %}{% if book.year %}, {{ book.year }}{% endif %}</p>
+    <p class="fs-4 price">{{ book.price|vnd }}</p>
+    <p class="mb-1">Danh mục {{ book.category.name }}</p>
+    <p class="{{ 'text-success' if book.stock else 'text-danger' }}">{{ 'Còn ' ~ book.stock ~ ' cuốn' if book.stock else 'Hết hàng' }}</p>
+    {% if book.description %}<p class="pre-wrap">{{ book.description }}</p>{% endif %}
+    {% set remaining = [0, book.stock - in_cart]|max %}
+    <form method="post" action="{{ url_for('shop.add_book', book_id=book.id) }}">
+      {{ csrf() }}
+      <input type="hidden" name="source" value="detail">
+      <label class="form-label" for="quantity">Số lượng</label>
+      <div class="d-flex gap-2 align-items-center flex-wrap mb-3">
+        <button type="button" class="btn btn-outline-primary" data-step="-1" aria-label="Giảm số lượng" {% if not remaining %}disabled{% endif %}>−</button>
+        <input class="form-control quantity" id="quantity" name="quantity" type="number" min="1" max="{{ remaining or 1 }}" value="1" required {% if not remaining %}disabled{% endif %}>
+        <button type="button" class="btn btn-outline-primary" data-step="1" aria-label="Tăng số lượng" {% if not remaining %}disabled{% endif %}>+</button>
+        <span class="small text-secondary">Có thể thêm {{ remaining }} cuốn{% if in_cart %} · Đã có {{ in_cart }} cuốn trong giỏ{% endif %}</span>
+      </div>
+      <button class="btn btn-primary" {% if not remaining %}disabled{% endif %}>Thêm vào giỏ hàng</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

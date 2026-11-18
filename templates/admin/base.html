@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block layout %}
+<div class="admin-layout">
+  <aside class="admin-nav d-flex flex-column p-3">
+    <a class="text-decoration-none fw-bold" href="{{ url_for('admin.dashboard') }}">Quản trị</a>
+    <div class="small text-light opacity-75 mb-3">Nhà sách Sông Hương</div>
+    <nav class="nav flex-column" aria-label="Quản trị">
+      {% for endpoint, label, section in [('dashboard', 'Tổng quan', 'dashboard'), ('books', 'Sách', 'book'), ('category_list', 'Danh mục', 'categor'), ('orders', 'Đơn hàng', 'order')] %}
+      <a class="nav-link rounded {% if request.endpoint and request.endpoint.split('.')[-1].startswith(section) %}active{% endif %}" href="{{ url_for('admin.' ~ endpoint) }}">
+        {{ label }}{% if endpoint == 'orders' %} <span class="badge rounded-pill cart-badge">{{ pending_count }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </nav>
+    <a class="small mt-auto pt-3" href="{{ url_for('shop.books') }}">← Trang bán hàng</a>
+  </aside>
+  <main class="admin-main p-3 p-lg-4">
+    {% include 'flashes.html' %}
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

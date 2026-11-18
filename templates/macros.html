@@ -1,0 +1,93 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro cover(book, css='') %}
+  {% if book.image or book.name_key in sample_covers %}
+    <img class="book-cover {{ css }}" src="{{ url_for('shop.cover', filename=book.image) if book.image else url_for('static', filename=sample_covers[book.name_key]) }}" alt="Bìa {{ book.name }}">
+  {% else %}
+    <div class="book-cover no-cover {{ css }}" role="img" aria-label="Chưa có ảnh bìa">Chưa có ảnh bìa</div>
+  {% endif %}
+{% endmacro %}
+
+{% macro field(input, css='form-control') %}
+  <div class="mb-3">
+    {{ input.label(class_='form-label') }}
+    {{ input(class_=css ~ (' is-invalid' if input.errors else ''), **kwargs) }}
+    {% for error in input.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro book_filters(filters, categories) %}
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-sm">
+      <input class="form-control" name="q" aria-label="Tên sách hoặc tác giả" placeholder="Tìm tên sách, tác giả…" value="{{ filters.q }}">
+    </div>
+    <div class="col-sm-auto">
+      <select class="form-select" name="category" aria-label="Danh mục">
+        <option value="">Mọi danh mục</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if filters.category == category.id %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% if 'stock' in filters %}
+    <div class="col-sm-auto">
+      <select class="form-select" name="stock" aria-label="Tồn kho">
+        <option value="">Mọi tồn kho</option>
+        {% for value, label in [('available', 'Còn hàng'), ('low', 'Sắp hết (1–5)'), ('out', 'Hết hàng')] %}
+          <option value="{{ value }}" {% if filters.stock == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <div class="col-auto"><button class="btn btn-primary">Lọc</button></div>
+  </form>
+{% endmacro %}
+
+{% macro pagination(page, endpoint, filters) %}
+  {% if page.pages > 1 %}
+  <nav aria-label="Phân trang">
+    <ul class="pagination flex-wrap">
+      {% for number in page.iter_pages() %}
+        {% if number == page.page %}
+          <li class="page-item active"><span class="page-link" aria-current="page">{{ number }}</span></li>
+        {% elif number %}
+          <li class="page-item"><a class="page-link" href="{{ url_for(endpoint, page=number, **filters) }}">{{ number }}</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </nav>
+  {% endif %}
+{% endmacro %}
+
+{% macro status_badge(status) %}
+  {% set colors = ['warning', 'primary', 'success', 'secondary'] %}
+  <span class="badge rounded-pill text-bg-{{ colors[(statuses|list).index(status)] }}">{{ status }}</span>
+{% endmacro %}
+
+{% macro order_items(order) %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr><th>Sách</th><th class="text-end">Đơn giá</th><th class="text-center">SL</th><th class="text-end">Thành tiền</th></tr></thead>
+      <tbody>
+      {% for item in order.items %}
+        <tr><td>{{ item.book_name }}</td><td class="text-end text-nowrap">{{ item.unit_price|vnd }}</td>
+          <td class="text-center">{{ item.quantity }}</td><td class="text-end text-nowrap">{{ (item.unit_price * item.quantity)|vnd }}</td></tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><th colspan="3" class="text-end">Phí giao hàng</th><td class="text-end text-nowrap">{{ order.shipping_fee|vnd if order.shipping_fee else 'Miễn phí' }}</td></tr>
+        <tr><th colspan="3" class="text-end">Tổng cộng</th><td class="text-end text-nowrap price">{{ order.total|vnd }}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+{% endmacro %}
+
+{% macro customer(order) %}
+  <p class="mb-1 fw-semibold">{{ order.name }} · {{ order.phone }}</p>
+  {% if order.email %}<p class="mb-1">{{ order.email }}</p>{% endif %}
+  <p class="mb-1 pre-wrap">{{ order.address }}</p>
+  <p class="mb-1">{{ payments[order.payment] }}</p>
+  {% if order.note %}<p class="mb-0 pre-wrap"><strong>Ghi chú</strong> {{ order.note }}</p>{% endif %}
+{% endmacro %}
