@@ -18,17 +18,3 @@
 4. Mở **Quản trị → Đơn hàng**, chọn đơn vừa tạo và xem dòng sách, đơn giá lúc mua và lịch sử. Chuyển từ **Chờ xác nhận** qua **Đang giao** rồi **Hoàn tất**. Tổng quan tính doanh thu theo thời điểm hoàn tất trong tháng, theo giờ Việt Nam.
 5. Tạo một đơn khác và thử **Huỷ đơn** từ trạng thái **Chờ xác nhận** hoặc **Đang giao**. Kiểm tra tồn kho tăng lại đúng số cuốn đã mua. **Hoàn tất** và **Đã huỷ** là trạng thái cuối.
 6. Trong **Sách**, thử sửa giá hoặc thay bìa. Đơn cũ giữ giá lúc đặt. Trong **Danh mục**, bấm tên danh mục để mở danh sách sách đã lọc.
-
-## Kiểm thử và mã nguồn
-
-```powershell
-.\.venv\Scripts\python.exe -X utf8 -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -X utf8 -m flask --app app db check
-```
-
-Kiểm thử tự tạo một SQLite riêng và áp dụng migration cho mỗi ca. Bộ test kiểm tra giỏ, CSRF, xác thực biểu mẫu, phí giao, checkout và trừ kho, gửi lại checkout, chặn xoá, ảnh bìa, bộ lọc, trạng thái đơn, hoàn kho và doanh thu.
-
-- `app.py` cấu hình Flask, SQLite, migration và CSRF.
-- `models.py` định nghĩa các bảng. `forms.py` định nghĩa biểu mẫu và quy tắc kiểm tra.
-- `shop.py` xử lý bán hàng. `admin.py` xử lý quản trị. `catalog.py` chứa bộ lọc dùng chung.
-- `seed.py` khai báo dữ liệu mẫu. `templates/` và `static/` chứa giao diện.
